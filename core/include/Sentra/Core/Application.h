@@ -6,7 +6,17 @@
 #define SENTRA_ENGINE_APPLICATION_H
 
 namespace SCore {
-    class Application {};
+    class Application {
+    public:
+        Application();
+
+        ~Application();
+
+        void Run();
+
+    private:
+        bool m_IsRunning;
+    };
 }
 
 #endif //SENTRA_ENGINE_APPLICATION_H
