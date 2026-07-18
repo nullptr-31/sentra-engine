@@ -12,9 +12,13 @@ int main() {
     SCore::Logger::Init();
 
     SCore::Application app;
-    SCLI::CLI cli;
+    const SCLI::CLI cli(app);
 
     app.Run();
+
+    cli.Run();
+
+    app.Stop();
 
     return 0;
 }

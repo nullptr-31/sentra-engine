@@ -24,3 +24,17 @@ target_link_libraries(sentra-cli
         PRIVATE
             sentra-core
 )
+
+# ---------------------------------------------------------
+# Dependencies
+# ---------------------------------------------------------
+
+set(REPLXX_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(REPLXX_BUILD_PACKAGE OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(vendor/replxx)
+
+target_link_libraries(sentra-cli
+    PRIVATE
+        replxx
+)

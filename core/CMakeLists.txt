@@ -6,6 +6,7 @@ target_sources(sentra-core
     PRIVATE
         src/Core/Application.cpp
         src/Core/Logger.cpp
+        include/Sentra/Utils/LoggerTags.h
 
     PUBLIC
         FILE_SET public_headers

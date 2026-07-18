@@ -14,6 +14,10 @@ namespace SCore {
 
         void Run();
 
+        void Stop();
+
+        inline bool IsRunning() const { return m_IsRunning; }
+
     private:
         bool m_IsRunning;
     };
