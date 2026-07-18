@@ -15,8 +15,16 @@ namespace SCore {
         InterfaceManager() = default;
     public:
         InterfaceManager(const InterfaceManager&) = delete;
+        InterfaceManager(InterfaceManager &&) = delete;
 
-        inline static InterfaceManager& Instance() { return s_Instance; }
+        InterfaceManager &operator=(const InterfaceManager &) = delete;
+        InterfaceManager &operator=(InterfaceManager &&) = delete;
+
+        inline static InterfaceManager& Instance() {
+            static InterfaceManager s_Instance;
+
+            return s_Instance;
+        }
 
         std::vector<pcpp::PcapLiveDevice*> GetSystemInterfaces() const;
 
@@ -27,9 +35,6 @@ namespace SCore {
 
         void CloseInterface(const std::string &interfaceName) const;
         void CloseInterface(pcpp::PcapLiveDevice *interface) const;
-
-    private:
-        static InterfaceManager s_Instance;
     };
 } // SCore
 

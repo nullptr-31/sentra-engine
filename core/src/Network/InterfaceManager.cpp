@@ -44,6 +44,4 @@ namespace SCore {
             interface->close();
         }
     }
-
-    InterfaceManager InterfaceManager::s_Instance;
 } // SCore

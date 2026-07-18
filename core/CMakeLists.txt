@@ -7,6 +7,8 @@ target_sources(sentra-core
         src/Core/Application.cpp
         src/Core/Logger.cpp
         src/Network/InterfaceManager.cpp
+        src/Capture/CaptureManager.cpp
+        src/Capture/CaptureSession.cpp
         include/Sentra/Utils/LoggerTags.h
 
     PUBLIC
@@ -18,6 +20,8 @@ target_sources(sentra-core
             include/Sentra/Core/Application.h
             include/Sentra/Core/Logger.h
             include/Sentra/Network/InterfaceManager.h
+            include/Sentra/Capture/CaptureManager.h
+            include/Sentra/Capture/CaptureSession.h
 )
 
 # ---------------------------------------------------------
