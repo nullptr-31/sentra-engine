@@ -12,7 +12,7 @@ namespace SCore {
     }
 
     pcpp::PcapLiveDevice* InterfaceManager::GetSystemInterface(const std::string& interfaceName) const {
-        return pcpp::PcapLiveDeviceList::getInstance().getDeviceByName(interfaceName.data());
+        return pcpp::PcapLiveDeviceList::getInstance().getDeviceByName(interfaceName);
     }
 
     bool InterfaceManager::OpenInterface(const std::string &interfaceName) {
