@@ -4,3 +4,6 @@
 [submodule "cli/vendor/replxx"]
 	path = cli/vendor/replxx
 	url = https://github.com/AmokHuginnsson/replxx
+[submodule "core/vendor/PcapPlusPlus"]
+	path = core/vendor/PcapPlusPlus
+	url = https://github.com/seladb/PcapPlusPlus
