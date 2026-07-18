@@ -5,6 +5,8 @@ add_library(Sentra::CLI ALIAS sentra-cli)
 target_sources(sentra-cli
         PRIVATE
             src/CLI/CLI.cpp
+            src/CLI/CLIContext.cpp
+            include/SentraCLI/CLI/CLIContext.h
             include/SentraCLI/Utils/StringUtils.h
 
         PUBLIC
