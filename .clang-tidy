@@ -1,1 +1,1 @@
-Checks: '-modernize-use-nodiscard'
+Checks: '-modernize-use-nodiscard, -readability-convert-member-functions-to-static'

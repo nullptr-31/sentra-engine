@@ -4,10 +4,12 @@
 
 #include "SentraCLI/CLI/CLI.h"
 
+#include <iostream>
 #include <replxx.hxx>
 
 namespace SCLI {
      CLI::CLI(const SCore::Application &application) : m_Application(application) {
+         m_Context = std::make_unique<CLIContext>();
     }
 
      void CLI::Run() const {
@@ -22,6 +24,12 @@ namespace SCLI {
              if (line.empty()) continue;
 
              rx.history_add(line);
+
+             HandleLine(line);
          }
     }
+
+     void CLI::HandleLine(const std::string_view line) const {
+         std::cout << line;
+     }
 }
