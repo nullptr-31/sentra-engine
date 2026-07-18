@@ -4,14 +4,15 @@ add_library(Sentra::CLI ALIAS sentra-cli)
 
 target_sources(sentra-cli
         PRIVATE
-        src/CLI/CLI.cpp
+            src/CLI/CLI.cpp
+            include/SentraCLI/Utils/StringUtils.h
 
         PUBLIC
         FILE_SET public_headers
         TYPE HEADERS
         BASE_DIRS include
         FILES
-        include/SentraCLI/CLI/CLI.h
+            include/SentraCLI/CLI/CLI.h
 )
 
 target_include_directories(sentra-cli
