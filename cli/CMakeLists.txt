@@ -7,6 +7,7 @@ target_sources(sentra-cli
             src/CLI/CLI.cpp
             src/CLI/CLIContext.cpp
             include/SentraCLI/CLI/CLIContext.h
+            include/SentraCLI/Command/CommandToken.h
             include/SentraCLI/Utils/StringUtils.h
 
         PUBLIC
