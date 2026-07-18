@@ -18,11 +18,11 @@ namespace SCLI {
         std::string Value;
         std::string Description;
 
-        static CommandToken Literal(std::string token, std::string desc) {
+        static CommandToken Literal(std::string token, std::string desc = "") {
             return {CommandTokenType::Literal, std::move(token), std::move(desc)};
         }
 
-        static CommandToken Parameter(std::string name,std::string desc) {
+        static CommandToken Parameter(std::string name,std::string desc = "") {
             return {CommandTokenType::Parameter, std::move(name), std::move(desc)};
         }
     };

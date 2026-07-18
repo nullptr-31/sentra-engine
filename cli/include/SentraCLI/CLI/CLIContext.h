@@ -19,6 +19,9 @@ namespace SCLI {
         inline CLIMode GetCLIMode() const { return m_Mode; }
         void SetCLIMode(CLIMode mode);
 
+        inline const std::string& GetCurrentInterface() const { return m_CurrentInterface; }
+        void SetCurrentInterface(std::string interface);
+
         inline bool QuitRequested() const { return m_QuitRequested; }
         void RequestQuit();
 
@@ -26,6 +29,8 @@ namespace SCLI {
 
     private:
         CLIMode m_Mode = CLIMode::Exec;
+
+        std::string m_CurrentInterface;
 
         bool m_QuitRequested = false;
     };

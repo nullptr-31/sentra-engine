@@ -9,6 +9,10 @@ namespace SCLI {
         m_Mode = mode;
     }
 
+    void CLIContext::SetCurrentInterface(std::string interface) {
+        m_CurrentInterface = std::move(interface);
+    }
+
     void CLIContext::RequestQuit() {
         m_QuitRequested = true;
     }

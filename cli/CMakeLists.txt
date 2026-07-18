@@ -6,9 +6,11 @@ target_sources(sentra-cli
         PRIVATE
             src/CLI/CLI.cpp
             src/CLI/CLIContext.cpp
+            src/Command/CommandTrie.cpp
             include/SentraCLI/CLI/CLIContext.h
             include/SentraCLI/Command/CommandToken.h
             include/SentraCLI/Utils/StringUtils.h
+            include/SentraCLI/Command/CommandTrie.h
 
         PUBLIC
         FILE_SET public_headers
