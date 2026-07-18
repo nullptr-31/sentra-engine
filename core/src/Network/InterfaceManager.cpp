@@ -15,13 +15,13 @@ namespace SCore {
         return pcpp::PcapLiveDeviceList::getInstance().getDeviceByName(interfaceName);
     }
 
-    bool InterfaceManager::OpenInterface(const std::string &interfaceName) {
+    bool InterfaceManager::OpenInterface(const std::string &interfaceName) const {
         pcpp::PcapLiveDevice *interface = GetSystemInterface(interfaceName);
 
         return OpenInterface(interface);
     }
 
-    bool InterfaceManager::OpenInterface(pcpp::PcapLiveDevice *interface) {
+    bool InterfaceManager::OpenInterface(pcpp::PcapLiveDevice *interface) const {
         if (interface == nullptr) return false;
 
         if (interface->isOpened()) return true;
@@ -31,13 +31,13 @@ namespace SCore {
         return true;
     }
 
-    void InterfaceManager::CloseInterface(const std::string &interfaceName) {
+    void InterfaceManager::CloseInterface(const std::string &interfaceName) const {
         pcpp::PcapLiveDevice *interface = GetSystemInterface(interfaceName);
 
         CloseInterface(interface);
     }
 
-    void InterfaceManager::CloseInterface(pcpp::PcapLiveDevice *interface) {
+    void InterfaceManager::CloseInterface(pcpp::PcapLiveDevice *interface) const {
         if (interface == nullptr) return;
 
         if (interface->isOpened()) {

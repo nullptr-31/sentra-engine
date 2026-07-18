@@ -22,11 +22,11 @@ namespace SCore {
 
         pcpp::PcapLiveDevice* GetSystemInterface(const std::string& interfaceName) const;
 
-        bool OpenInterface(const std::string &interfaceName);
-        bool OpenInterface(pcpp::PcapLiveDevice *interface);
+        bool OpenInterface(const std::string &interfaceName) const;
+        bool OpenInterface(pcpp::PcapLiveDevice *interface) const;
 
-        void CloseInterface(const std::string &interfaceName);
-        void CloseInterface(pcpp::PcapLiveDevice *interface);
+        void CloseInterface(const std::string &interfaceName) const;
+        void CloseInterface(pcpp::PcapLiveDevice *interface) const;
 
     private:
         static InterfaceManager s_Instance;
