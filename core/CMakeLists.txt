@@ -14,6 +14,7 @@ target_sources(sentra-core
         src/Flow/FlowPacketParser.cpp
         src/Flow/FlowManager.cpp
         src/Flow/FlowFeaturesExtractor.cpp
+        src/Kafka/KafkaFlowFeaturePublisher.cpp
         include/Sentra/Flow/Flow.h
         include/Sentra/Utils/LoggerTags.h
         include/Sentra/Flow/FlowKey.h
@@ -22,6 +23,8 @@ target_sources(sentra-core
         include/Sentra/Flow/FlowManager.h
         include/Sentra/Flow/FlowFeatures.h
         include/Sentra/Flow/FlowFeaturesExtractor.h
+        include/Sentra/Flow/FlowFeaturesSerializer.h
+        include/Sentra/Kafka/KafkaFlowFeaturePublisher.h
 
     PUBLIC
         FILE_SET public_headers
@@ -60,9 +63,12 @@ set(PCAPPP_BUILD_COVERAGE OFF)
 set(RDKAFKA_BUILD_EXAMPLES OFF)
 set(RDKAFKA_BUILD_TESTS OFF)
 
+set(glaze_BUILD_EXAMPLES OFF)
+
 add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/PcapPlusPlus)
 add_subdirectory(vendor/librdkafka)
+add_subdirectory(vendor/glaze)
 
 target_link_libraries(sentra-core
         PUBLIC
@@ -71,4 +77,5 @@ target_link_libraries(sentra-core
             Packet++
             Pcap++
             rdkafka++
+            glaze::glaze
 )

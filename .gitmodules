@@ -10,3 +10,6 @@
 [submodule "core/vendor/librdkafka"]
 	path = core/vendor/librdkafka
 	url = https://github.com/confluentinc/librdkafka.git
+[submodule "core/vendor/glaze"]
+	path = core/vendor/glaze
+	url = https://github.com/stephenberry/glaze.git

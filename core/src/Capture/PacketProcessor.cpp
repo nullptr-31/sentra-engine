@@ -45,7 +45,7 @@ namespace SCore {
     }
 
     std::uint64_t PacketProcessor::GetProcessedPacketCount() const {
-        return m_ProcessedPackets.load(std::memory_order_relaxed);
+        return m_Stats.PacketsProcessed.load(std::memory_order_relaxed);
     }
 
     void PacketProcessor::Run(const std::stop_token &stopToken) {
@@ -59,13 +59,12 @@ namespace SCore {
             pcpp::Packet packet(&rawPacket);
             auto flowPacket = FlowPacketParser::TryParse(rawPacket, packet);
 
-            if (packet.isPacketOfType(pcpp::UnknownProtocol) || !flowPacket.has_value()) {
-                m_Stats.ParseErrors.fetch_add(1, std::memory_order_relaxed);
+            if (!flowPacket.has_value()) {
                 continue;
             }
 
             m_FlowManager.ProcessPacket(std::move(*flowPacket));
-            m_ProcessedPackets.fetch_add(1, std::memory_order_relaxed);
+            m_Stats.PacketsProcessed.fetch_add(1, std::memory_order_relaxed);
         }
 
         m_Running.store(false, std::memory_order_relaxed);

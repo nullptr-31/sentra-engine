@@ -5,6 +5,7 @@
 #include "Sentra/Core/Application.h"
 
 #include "Sentra/Core/Logger.h"
+#include "Sentra/Kafka/KafkaFlowFeaturePublisher.h"
 #include "Sentra/Utils/LoggerTags.h"
 
 namespace SCore {
@@ -23,6 +24,8 @@ namespace SCore {
     void Application::Run() {
         if (m_IsRunning) return;
 
+        KafkaFlowFeaturePublisher::Instance().Start();
+
         m_IsRunning = true;
 
         SCORE_TRACE("{}: Application state changed to up", LoggerTags::STATE_CHANGE);
@@ -32,6 +35,7 @@ namespace SCore {
         if (!m_IsRunning) return;
 
         m_CaptureManager.StopAllCaptureSessions();
+        KafkaFlowFeaturePublisher::Instance().Stop();
 
         m_IsRunning = false;
 

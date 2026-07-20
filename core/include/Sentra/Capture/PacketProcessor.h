@@ -53,7 +53,6 @@ namespace SCore {
         std::jthread m_Worker;
 
         std::atomic_bool m_Running = false;
-        std::atomic_uint64_t m_ProcessedPackets = 0;
     };
 } // SCore
 

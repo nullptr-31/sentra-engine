@@ -6,6 +6,10 @@
 
 #include <ranges>
 
+#include "Sentra/Flow/FlowFeatures.h"
+#include "Sentra/Flow/FlowFeaturesExtractor.h"
+#include "Sentra/Kafka/KafkaFlowFeaturePublisher.h"
+
 namespace SCore {
     namespace {
         constexpr std::uint8_t TCP_PROTOCOL_NUMBER = 6;
@@ -37,7 +41,7 @@ namespace SCore {
             return;
         }
 
-        if (it->second.FlowData.IsExpired(
+        if (it->second.FlowData.MarkExpired(
             packet.TimestampUs,
             m_MaxFlowDurationUs,
             m_ActivityTimeoutUs
@@ -99,6 +103,10 @@ namespace SCore {
     }
 
     void FlowManager::FinishFlow(TrackedFlow &&flow) {
+        if (const FlowFeatures features = FlowFeatureExtractor::Extract(flow.FlowData, m_ActivityTimeoutUs); !KafkaFlowFeaturePublisher::Instance().Publish(features)) {
+            // TODO(add values): increment dropped finished-flow publish counter.
+        }
+
         m_FinishedFlows.emplace_back(std::move(flow.FlowData));
     }
 

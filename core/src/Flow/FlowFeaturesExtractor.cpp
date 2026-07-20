@@ -10,7 +10,6 @@
 namespace SCore {
     namespace {
         constexpr double MicrosecondsPerSecond = 1000000.0;
-        constexpr double ActiveThresholdUs = 100000000.0;
         constexpr double SubflowThresholdUs = 1000000.0;
 
         double Divide(const double a, const double b) {
@@ -26,7 +25,7 @@ namespace SCore {
         }
 
         double Variance(const std::vector<double> &values) {
-            if (values.empty()) return 0.0;
+            if (values.size() < 2) return 0.0;
 
             const double mean = Mean(values);
             double total = 0.0;
@@ -36,7 +35,7 @@ namespace SCore {
                 total += diff * diff;
             }
 
-            return total / static_cast<double>(values.size());
+            return total / static_cast<double>(values.size() - 1);
         }
 
         double Std(const std::vector<double> &values) {
@@ -52,7 +51,7 @@ namespace SCore {
         }
     }
 
-    FlowFeatures FlowFeatureExtractor::Extract(const Flow &flow) {
+    FlowFeatures FlowFeatureExtractor::Extract(const Flow &flow, const std::uint64_t activityTimeoutUs) {
         FlowFeatures f;
         const auto &packets = flow.GetPackets();
 
@@ -66,10 +65,6 @@ namespace SCore {
         std::vector<double> allPayloadLengths;
         std::vector<double> fwdPayloadLengths;
         std::vector<double> bwdPayloadLengths;
-
-        std::vector<double> allSegmentSizes;
-        std::vector<double> fwdSegmentSizes;
-        std::vector<double> bwdSegmentSizes;
 
         std::vector<double> flowIat;
         std::vector<double> fwdIat;
@@ -85,14 +80,22 @@ namespace SCore {
         std::uint64_t activeStart = packets.front().TimestampUs;
         std::uint64_t activeEnd = packets.front().TimestampUs;
 
-        std::uint64_t subflowCount = 1;
+        std::uint64_t subflowCount = 0;
+        bool isFirstPacket = true;
+        bool firstForwardPacketSeen = false;
+        double flowPayloadLengthSum = 0.0;
 
         for (const FlowPacket &p : packets) {
             const auto payloadLength = static_cast<double>(p.PayloadLength);
-            const auto segmentSize = static_cast<double>(p.HeaderLength + p.PayloadLength);
 
             allPayloadLengths.push_back(payloadLength);
-            allSegmentSizes.push_back(segmentSize);
+            flowPayloadLengthSum += payloadLength;
+
+            if (isFirstPacket) {
+                allPayloadLengths.push_back(payloadLength);
+                flowPayloadLengthSum += payloadLength;
+                isFirstPacket = false;
+            }
 
             if (previousTs != 0 && p.TimestampUs >= previousTs) {
                 const auto iat = static_cast<double>(p.TimestampUs - previousTs);
@@ -102,7 +105,7 @@ namespace SCore {
                     ++subflowCount;
                 }
 
-                if (iat > ActiveThresholdUs) {
+                if (iat > static_cast<double>(activityTimeoutUs)) {
                     const auto activeDuration = static_cast<double>(activeEnd - activeStart);
 
                     if (activeDuration > 0.0) {
@@ -139,7 +142,6 @@ namespace SCore {
                 f.FwdHeaderLength += p.HeaderLength;
 
                 fwdPayloadLengths.push_back(payloadLength);
-                fwdSegmentSizes.push_back(segmentSize);
 
                 if (f.FwdPacketLengthMin == 0 || p.PayloadLength < f.FwdPacketLengthMin) {
                     f.FwdPacketLengthMin = p.PayloadLength;
@@ -149,10 +151,12 @@ namespace SCore {
 
                 if (p.Flags.Psh) ++f.FwdPSHFlags;
                 if (p.Flags.Urg) ++f.FwdURGFlags;
-                if (p.PayloadLength > 0) ++f.ActDataPktFwd;
 
-                if (f.InitWinBytesForward == 0) {
+                if (!firstForwardPacketSeen) {
                     f.InitWinBytesForward = p.WindowSize;
+                    firstForwardPacketSeen = true;
+                } else if (p.PayloadLength > 0) {
+                    ++f.ActDataPktFwd;
                 }
 
                 if (f.MinSegSizeForward == 0 || p.HeaderLength < f.MinSegSizeForward) {
@@ -170,7 +174,6 @@ namespace SCore {
                 f.BwdHeaderLength += p.HeaderLength;
 
                 bwdPayloadLengths.push_back(payloadLength);
-                bwdSegmentSizes.push_back(segmentSize);
 
                 if (f.BwdPacketLengthMin == 0 || p.PayloadLength < f.BwdPacketLengthMin) {
                     f.BwdPacketLengthMin = p.PayloadLength;
@@ -178,9 +181,7 @@ namespace SCore {
 
                 f.BwdPacketLengthMax = std::max<std::uint64_t>(f.BwdPacketLengthMax, p.PayloadLength);
 
-                if (f.InitWinBytesBackward == 0) {
-                    f.InitWinBytesBackward = p.WindowSize;
-                }
+                f.InitWinBytesBackward = p.WindowSize;
 
                 if (previousBwdTs != 0 && p.TimestampUs >= previousBwdTs) {
                     bwdIat.push_back(static_cast<double>(p.TimestampUs - previousBwdTs));
@@ -188,11 +189,6 @@ namespace SCore {
 
                 previousBwdTs = p.TimestampUs;
             }
-        }
-
-        const auto finalActiveDuration = static_cast<double>(activeEnd - activeStart);
-        if (finalActiveDuration > 0.0) {
-            active.push_back(finalActiveDuration);
         }
 
         f.FwdPacketLengthMean = Mean(fwdPayloadLengths);
@@ -231,21 +227,22 @@ namespace SCore {
         f.FwdPacketsPerSecond = Divide(static_cast<double>(f.TotalFwdPackets), durationSeconds);
         f.BwdPacketsPerSecond = Divide(static_cast<double>(f.TotalBackwardPackets), durationSeconds);
 
-        f.DownUpRatio = Divide(
-            static_cast<double>(f.TotalBackwardPackets),
-            static_cast<double>(f.TotalFwdPackets)
-        );
+        f.DownUpRatio = f.TotalFwdPackets == 0
+                            ? 0.0
+                            : static_cast<double>(f.TotalBackwardPackets / f.TotalFwdPackets);
 
-        f.AveragePacketSize = Mean(allSegmentSizes);
-        f.AvgFwdSegmentSize = Mean(fwdSegmentSizes);
-        f.AvgBwdSegmentSize = Mean(bwdSegmentSizes);
+        f.AveragePacketSize = Divide(flowPayloadLengthSum, totalPackets);
+        f.AvgFwdSegmentSize = Mean(fwdPayloadLengths);
+        f.AvgBwdSegmentSize = Mean(bwdPayloadLengths);
 
         f.FwdHeaderLengthDuplicated0 = f.FwdHeaderLength;
 
-        f.SubflowFwdPackets = Divide(static_cast<double>(f.TotalFwdPackets), static_cast<double>(subflowCount));
-        f.SubflowFwdBytes = Divide(static_cast<double>(f.TotalLengthOfFwdPackets), static_cast<double>(subflowCount));
-        f.SubflowBwdPackets = Divide(static_cast<double>(f.TotalBackwardPackets), static_cast<double>(subflowCount));
-        f.SubflowBwdBytes = Divide(static_cast<double>(f.TotalLengthOfBwdPackets), static_cast<double>(subflowCount));
+        if (subflowCount > 0) {
+            f.SubflowFwdPackets = static_cast<double>(f.TotalFwdPackets / subflowCount);
+            f.SubflowFwdBytes = static_cast<double>(f.TotalLengthOfFwdPackets / subflowCount);
+            f.SubflowBwdPackets = static_cast<double>(f.TotalBackwardPackets / subflowCount);
+            f.SubflowBwdBytes = static_cast<double>(f.TotalLengthOfBwdPackets / subflowCount);
+        }
 
         f.ActiveMean = Mean(active);
         f.ActiveStd = Std(active);
