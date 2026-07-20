@@ -70,8 +70,8 @@ namespace SCore {
         std::unordered_map<FlowKey, TrackedFlow> m_ActiveFlows;
         std::vector<Flow> m_FinishedFlows;
 
-        std::uint64_t m_MaxFlowDurationUs = 3600ULL * 1000000ULL;
-        std::uint64_t m_ActivityTimeoutUs = 300ULL * 1000000ULL;
+        std::uint64_t m_MaxFlowDurationUs = 120ULL * 1000000ULL;
+        std::uint64_t m_ActivityTimeoutUs = 5ULL * 1000000ULL;
         std::uint64_t m_ActiveIdleThresholdUs = 5ULL * 1000000ULL;
     };
 } // SCore

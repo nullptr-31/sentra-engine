@@ -82,7 +82,10 @@ namespace SCore {
 
         std::uint64_t subflowCount = 0;
         bool isFirstPacket = true;
+        bool minPacketLengthSeen = false;
         bool firstForwardPacketSeen = false;
+        bool fwdPacketLengthMinSeen = false;
+        bool bwdPacketLengthMinSeen = false;
         double flowPayloadLengthSum = 0.0;
 
         for (const FlowPacket &p : packets) {
@@ -121,8 +124,9 @@ namespace SCore {
 
             previousTs = p.TimestampUs;
 
-            if (f.MinPacketLength == 0 || p.PayloadLength < f.MinPacketLength) {
+            if (!minPacketLengthSeen || p.PayloadLength < f.MinPacketLength) {
                 f.MinPacketLength = p.PayloadLength;
+                minPacketLengthSeen = true;
             }
 
             f.MaxPacketLength = std::max<std::uint64_t>(f.MaxPacketLength, p.PayloadLength);
@@ -143,8 +147,9 @@ namespace SCore {
 
                 fwdPayloadLengths.push_back(payloadLength);
 
-                if (f.FwdPacketLengthMin == 0 || p.PayloadLength < f.FwdPacketLengthMin) {
+                if (!fwdPacketLengthMinSeen || p.PayloadLength < f.FwdPacketLengthMin) {
                     f.FwdPacketLengthMin = p.PayloadLength;
+                    fwdPacketLengthMinSeen = true;
                 }
 
                 f.FwdPacketLengthMax = std::max<std::uint64_t>(f.FwdPacketLengthMax, p.PayloadLength);
@@ -175,8 +180,9 @@ namespace SCore {
 
                 bwdPayloadLengths.push_back(payloadLength);
 
-                if (f.BwdPacketLengthMin == 0 || p.PayloadLength < f.BwdPacketLengthMin) {
+                if (!bwdPacketLengthMinSeen || p.PayloadLength < f.BwdPacketLengthMin) {
                     f.BwdPacketLengthMin = p.PayloadLength;
+                    bwdPacketLengthMinSeen = true;
                 }
 
                 f.BwdPacketLengthMax = std::max<std::uint64_t>(f.BwdPacketLengthMax, p.PayloadLength);
