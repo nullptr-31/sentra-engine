@@ -24,7 +24,6 @@ namespace SCore {
         std::vector<const Flow *> GetAllFlows() const;
 
         void SetMaxFlowDuration(std::uint64_t microseconds);
-        void SetActivityTimeout(std::uint64_t microseconds);
         void SetActiveIdleThreshold(std::uint64_t microseconds);
 
         void Clear();
@@ -71,7 +70,6 @@ namespace SCore {
         std::vector<Flow> m_FinishedFlows;
 
         std::uint64_t m_MaxFlowDurationUs = 120ULL * 1000000ULL;
-        std::uint64_t m_ActivityTimeoutUs = 5ULL * 1000000ULL;
         std::uint64_t m_ActiveIdleThresholdUs = 5ULL * 1000000ULL;
     };
 } // SCore

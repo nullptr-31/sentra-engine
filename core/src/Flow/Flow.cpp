@@ -41,19 +41,13 @@ namespace SCore {
         return m_EndReason != FlowEndReason::None;
     }
 
-    bool Flow::MarkExpired(const std::uint64_t currentTimestampUs, const std::uint64_t maxFlowDurationUs,
-                           const std::uint64_t activityTimeoutUs) {
+    bool Flow::MarkExpired(const std::uint64_t currentTimestampUs, const std::uint64_t maxFlowDurationUs) {
         if (m_EndReason != FlowEndReason::None) {
             return true;
         }
 
         if (m_FirstSeenUs != 0 && currentTimestampUs - m_FirstSeenUs > maxFlowDurationUs) {
             m_EndReason = FlowEndReason::MaxDuration;
-            return true;
-        }
-
-        if (m_LastSeenUs != 0 && currentTimestampUs - m_LastSeenUs > activityTimeoutUs) {
-            m_EndReason = FlowEndReason::ActivityTimeout;
             return true;
         }
 

@@ -15,7 +15,6 @@ namespace SCore {
     enum class FlowEndReason {
         None = 0,
         MaxDuration,
-        ActivityTimeout,
         TCPFin,
         TCPRst,
     };
@@ -30,8 +29,7 @@ namespace SCore {
 
         bool MarkExpired(
             std::uint64_t currentTimestampUs,
-            std::uint64_t maxFlowDurationUs,
-            std::uint64_t activityTimeoutUs
+            std::uint64_t maxFlowDurationUs
         );
 
         const FlowKey &GetKey() const { return m_Key; }

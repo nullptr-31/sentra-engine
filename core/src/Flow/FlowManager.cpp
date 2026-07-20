@@ -43,8 +43,7 @@ namespace SCore {
 
         if (it->second.FlowData.MarkExpired(
             packet.TimestampUs,
-            m_MaxFlowDurationUs,
-            m_ActivityTimeoutUs
+            m_MaxFlowDurationUs
         )) {
             TrackedFlow finishedFlow = std::move(it->second);
             m_ActiveFlows.erase(it);
@@ -96,10 +95,6 @@ namespace SCore {
 
     void FlowManager::SetMaxFlowDuration(const std::uint64_t microseconds) {
         m_MaxFlowDurationUs = microseconds;
-    }
-
-    void FlowManager::SetActivityTimeout(const std::uint64_t microseconds) {
-        m_ActivityTimeoutUs = microseconds;
     }
 
     void FlowManager::SetActiveIdleThreshold(const std::uint64_t microseconds) {
