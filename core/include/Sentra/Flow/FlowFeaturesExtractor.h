@@ -13,7 +13,7 @@
 namespace SCore {
     class FlowFeatureExtractor {
     public:
-        static FlowFeatures Extract(const Flow &flow, std::uint64_t activityTimeoutUs);
+        static FlowFeatures Extract(const Flow &flow, std::uint64_t activeIdleThresholdUs);
     };
 } // SCore
 

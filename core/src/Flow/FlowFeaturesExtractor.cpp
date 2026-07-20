@@ -51,7 +51,7 @@ namespace SCore {
         }
     }
 
-    FlowFeatures FlowFeatureExtractor::Extract(const Flow &flow, const std::uint64_t activityTimeoutUs) {
+    FlowFeatures FlowFeatureExtractor::Extract(const Flow &flow, const std::uint64_t activeIdleThresholdUs) {
         FlowFeatures f;
         const auto &packets = flow.GetPackets();
 
@@ -105,7 +105,7 @@ namespace SCore {
                     ++subflowCount;
                 }
 
-                if (iat > static_cast<double>(activityTimeoutUs)) {
+                if (iat > static_cast<double>(activeIdleThresholdUs)) {
                     const auto activeDuration = static_cast<double>(activeEnd - activeStart);
 
                     if (activeDuration > 0.0) {

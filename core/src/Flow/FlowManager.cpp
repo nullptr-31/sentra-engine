@@ -102,8 +102,12 @@ namespace SCore {
         m_ActivityTimeoutUs = microseconds;
     }
 
+    void FlowManager::SetActiveIdleThreshold(const std::uint64_t microseconds) {
+        m_ActiveIdleThresholdUs = microseconds;
+    }
+
     void FlowManager::FinishFlow(TrackedFlow &&flow) {
-        if (const FlowFeatures features = FlowFeatureExtractor::Extract(flow.FlowData, m_ActivityTimeoutUs); !KafkaFlowFeaturePublisher::Instance().Publish(features)) {
+        if (const FlowFeatures features = FlowFeatureExtractor::Extract(flow.FlowData, m_ActiveIdleThresholdUs); !KafkaFlowFeaturePublisher::Instance().Publish(features)) {
             // TODO(add values): increment dropped finished-flow publish counter.
         }
 
