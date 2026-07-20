@@ -22,6 +22,7 @@ target_sources(sentra-core
             include/Sentra/Network/InterfaceManager.h
             include/Sentra/Capture/CaptureManager.h
             include/Sentra/Capture/CaptureSession.h
+            include/Sentra/Capture/BoundedPacketBuffer.h
 )
 
 # ---------------------------------------------------------
