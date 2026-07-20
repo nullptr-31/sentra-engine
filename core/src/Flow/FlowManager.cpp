@@ -4,6 +4,8 @@
 
 #include "Sentra/Flow/FlowManager.h"
 
+#include <ranges>
+
 namespace SCore {
     namespace {
         constexpr std::uint8_t TCP_PROTOCOL_NUMBER = 6;
@@ -18,28 +20,91 @@ namespace SCore {
 
         FlowKey key = MakeFlowKey(source, destination, protocol);
 
-        auto [it, inserted] = m_Flows.try_emplace(
-            key,
-            key,
-            source,
-            destination
-        );
+        std::lock_guard lock(m_Mutex);
 
-        packet.Direction = DetermineDirection(
-            it->second,
-            source,
-            destination
-        );
+        auto it = m_ActiveFlows.find(key);
 
+        if (it == m_ActiveFlows.end()) {
+            auto [newIt, inserted] = m_ActiveFlows.try_emplace(
+                key,
+                key,
+                source,
+                destination
+            );
+
+            packet.Direction = DetermineDirection(newIt->second, source, destination);
+            newIt->second.FlowData.AddPacket(packet);
+            return;
+        }
+
+        if (it->second.FlowData.IsExpired(
+            packet.TimestampUs,
+            m_MaxFlowDurationUs,
+            m_ActivityTimeoutUs
+        )) {
+            TrackedFlow finishedFlow = std::move(it->second);
+            m_ActiveFlows.erase(it);
+
+            FinishFlow(std::move(finishedFlow));
+
+            auto [newIt, inserted] = m_ActiveFlows.try_emplace(
+                key,
+                key,
+                source,
+                destination
+            );
+
+            packet.Direction = DetermineDirection(newIt->second, source, destination);
+            newIt->second.FlowData.AddPacket(packet);
+            return;
+        }
+
+        packet.Direction = DetermineDirection(it->second, source, destination);
         it->second.FlowData.AddPacket(packet);
+
+        if (it->second.FlowData.HasEnded()) {
+            TrackedFlow finishedFlow = std::move(it->second);
+            m_ActiveFlows.erase(it);
+
+            FinishFlow(std::move(finishedFlow));
+        }
     }
 
     std::size_t FlowManager::GetActiveFlowCount() const {
-        return m_Flows.size();
+        return m_ActiveFlows.size();
+    }
+
+    std::size_t FlowManager::GetFinishedFlowCount() const {
+        return m_FinishedFlows.size();
+    }
+
+    std::vector<const Flow *> FlowManager::GetActiveFlows() const {
+        return {};
+    }
+
+    std::vector<const Flow *> FlowManager::GetFinishedFlows() const {
+        return {};
+    }
+
+    std::vector<const Flow *> FlowManager::GetAllFlows() const {
+        return {};
+    }
+
+    void FlowManager::SetMaxFlowDuration(const std::uint64_t microseconds) {
+        m_MaxFlowDurationUs = microseconds;
+    }
+
+    void FlowManager::SetActivityTimeout(const std::uint64_t microseconds) {
+        m_ActivityTimeoutUs = microseconds;
+    }
+
+    void FlowManager::FinishFlow(TrackedFlow &&flow) {
+        m_FinishedFlows.emplace_back(std::move(flow.FlowData));
     }
 
     void FlowManager::Clear() {
-        m_Flows.clear();
+        m_ActiveFlows.clear();
+        m_FinishedFlows.clear();
     }
 
     FlowManager::TrackedFlow::TrackedFlow(FlowKey key, FlowEndpoint forwardEndpoint,

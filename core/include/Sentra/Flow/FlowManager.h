@@ -5,6 +5,8 @@
 #ifndef SENTRA_ENGINE_FLOWMANAGER_H
 #define SENTRA_ENGINE_FLOWMANAGER_H
 
+#include <mutex>
+
 #include "Flow.h"
 #include "FlowKey.h"
 #include "FlowPacket.h"
@@ -15,6 +17,14 @@ namespace SCore {
         void ProcessPacket(FlowPacket packet);
 
         std::size_t GetActiveFlowCount() const;
+        std::size_t GetFinishedFlowCount() const;
+
+        std::vector<const Flow *> GetActiveFlows() const;
+        std::vector<const Flow *> GetFinishedFlows() const;
+        std::vector<const Flow *> GetAllFlows() const;
+
+        void SetMaxFlowDuration(std::uint64_t microseconds);
+        void SetActivityTimeout(std::uint64_t microseconds);
 
         void Clear();
 
@@ -30,6 +40,9 @@ namespace SCore {
                 FlowEndpoint backwardEndpoint
             );
         };
+
+    private:
+        void FinishFlow(TrackedFlow &&flow);
 
     private:
         static FlowEndpoint MakeSourceEndpoint(const FlowPacket &packet);
@@ -51,7 +64,13 @@ namespace SCore {
         );
 
     private:
-        std::unordered_map<FlowKey, TrackedFlow> m_Flows;
+        mutable std::mutex m_Mutex;
+
+        std::unordered_map<FlowKey, TrackedFlow> m_ActiveFlows;
+        std::vector<Flow> m_FinishedFlows;
+
+        std::uint64_t m_MaxFlowDurationUs = 3600ULL * 1000000ULL;
+        std::uint64_t m_ActivityTimeoutUs = 300ULL * 1000000ULL;
     };
 } // SCore
 

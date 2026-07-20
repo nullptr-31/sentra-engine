@@ -13,12 +13,15 @@ target_sources(sentra-core
         src/Flow/Flow.cpp
         src/Flow/FlowPacketParser.cpp
         src/Flow/FlowManager.cpp
+        src/Flow/FlowFeaturesExtractor.cpp
         include/Sentra/Flow/Flow.h
         include/Sentra/Utils/LoggerTags.h
         include/Sentra/Flow/FlowKey.h
         include/Sentra/Flow/FlowPacket.h
         include/Sentra/Flow/FlowPacketParser.h
         include/Sentra/Flow/FlowManager.h
+        include/Sentra/Flow/FlowFeatures.h
+        include/Sentra/Flow/FlowFeaturesExtractor.h
 
     PUBLIC
         FILE_SET public_headers
