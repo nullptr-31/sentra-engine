@@ -7,3 +7,6 @@
 [submodule "core/vendor/PcapPlusPlus"]
 	path = core/vendor/PcapPlusPlus
 	url = https://github.com/seladb/PcapPlusPlus
+[submodule "core/vendor/librdkafka"]
+	path = core/vendor/librdkafka
+	url = https://github.com/confluentinc/librdkafka.git

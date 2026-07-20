@@ -54,8 +54,12 @@ set(PCAPPP_INSTALL OFF)
 set(PCAPPP_LOG_LEVEL "Off")
 set(PCAPPP_BUILD_COVERAGE OFF)
 
+set(RDKAFKA_BUILD_EXAMPLES OFF)
+set(RDKAFKA_BUILD_TESTS OFF)
+
 add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/PcapPlusPlus)
+add_subdirectory(vendor/librdkafka)
 
 target_link_libraries(sentra-core
         PUBLIC
@@ -63,4 +67,5 @@ target_link_libraries(sentra-core
             Common++
             Packet++
             Pcap++
+            rdkafka++
 )
