@@ -229,7 +229,7 @@ namespace SCore {
 
         f.DownUpRatio = f.TotalFwdPackets == 0
                             ? 0.0
-                            : static_cast<double>(f.TotalBackwardPackets / f.TotalFwdPackets);
+                            : static_cast<double>(f.TotalBackwardPackets) / static_cast<double>(f.TotalFwdPackets);
 
         f.AveragePacketSize = Divide(flowPayloadLengthSum, totalPackets);
         f.AvgFwdSegmentSize = Mean(fwdPayloadLengths);
