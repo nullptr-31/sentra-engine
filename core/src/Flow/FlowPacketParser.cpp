@@ -8,7 +8,6 @@
 #include "IPv6Layer.h"
 #include "SystemUtils.h"
 #include "TcpLayer.h"
-#include <UdpLayer.h>
 
 namespace SCore {
     std::uint64_t ToEpochMicroseconds(const timespec &timestamp) {
@@ -70,23 +69,6 @@ namespace SCore {
         return true;
     }
 
-    bool FillUDPFields(const pcpp::Packet& packet, FlowPacket& flowPacket) {
-        const auto* udp = packet.getLayerOfType<pcpp::UdpLayer>();
-
-        if (udp == nullptr) {
-            return false;
-        }
-
-        flowPacket.SourcePort = udp->getSrcPort();
-        flowPacket.DestinationPort = udp->getDstPort();
-        flowPacket.Protocol = 17;
-
-        flowPacket.HeaderLength += static_cast<std::uint32_t>(udp->getHeaderLen());
-        flowPacket.PayloadLength = static_cast<std::uint32_t>(udp->getLayerPayloadSize());
-
-        return true;
-    }
-
     std::optional<FlowPacket> FlowPacketParser::TryParse(const pcpp::RawPacket &rawPacket, const pcpp::Packet &packet) {
         FlowPacket flowPacket;
 
@@ -98,10 +80,6 @@ namespace SCore {
         }
 
         if (FillTCPFields(packet, flowPacket)) {
-            return flowPacket;
-        }
-
-        if (FillUDPFields(packet, flowPacket)) {
             return flowPacket;
         }
 
