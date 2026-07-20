@@ -11,6 +11,7 @@ target_sources(sentra-cli
             include/SentraCLI/Command/CommandToken.h
             include/SentraCLI/Utils/StringUtils.h
             include/SentraCLI/Command/CommandTrie.h
+            include/SentraCLI/CLI/CLIWriter.h
 
         PUBLIC
         FILE_SET public_headers
@@ -29,6 +30,11 @@ target_include_directories(sentra-cli
 target_link_libraries(sentra-cli
         PRIVATE
             sentra-core
+)
+
+target_compile_definitions(sentra-cli
+        PRIVATE
+            SENTRA_ENGINE_VERSION="${PROJECT_VERSION}"
 )
 
 # ---------------------------------------------------------

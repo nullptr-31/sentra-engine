@@ -31,10 +31,15 @@ namespace SCore {
         bool StartCaptureSession(const std::string& interfaceName);
         void StopCaptureSession(const std::string& interfaceName);
 
+        void StopAllCaptureSessions();
+
+        const CaptureSession* GetCaptureSession(const std::string& interfaceName) const;
+        void GetAllCaptureSessions(std::vector<const CaptureSession*>& outSessions) const;
+
     private:
         InterfaceManager &m_InterfaceManager;
 
-        std::unordered_map<std::string, std::unique_ptr<CaptureSession>> m_CaptureSessions;
+        std::unordered_map<std::string, std::unique_ptr<CaptureSession>> m_CaptureSessions{};
     };
 }
 

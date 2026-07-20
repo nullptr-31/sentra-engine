@@ -9,7 +9,16 @@ target_sources(sentra-core
         src/Network/InterfaceManager.cpp
         src/Capture/CaptureManager.cpp
         src/Capture/CaptureSession.cpp
+        src/Capture/PacketProcessor.cpp
+        src/Flow/Flow.cpp
+        src/Flow/FlowPacketParser.cpp
+        src/Flow/FlowManager.cpp
+        include/Sentra/Flow/Flow.h
         include/Sentra/Utils/LoggerTags.h
+        include/Sentra/Flow/FlowKey.h
+        include/Sentra/Flow/FlowPacket.h
+        include/Sentra/Flow/FlowPacketParser.h
+        include/Sentra/Flow/FlowManager.h
 
     PUBLIC
         FILE_SET public_headers
@@ -23,6 +32,7 @@ target_sources(sentra-core
             include/Sentra/Capture/CaptureManager.h
             include/Sentra/Capture/CaptureSession.h
             include/Sentra/Capture/BoundedPacketBuffer.h
+            include/Sentra/Capture/PacketProcessor.h
 )
 
 # ---------------------------------------------------------

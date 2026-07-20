@@ -7,12 +7,15 @@
 
 #include <PcapLiveDevice.h>
 
+#include "BoundedPacketBuffer.h"
+#include "PacketProcessor.h"
 #include "Sentra/Network/InterfaceManager.h"
 
 namespace SCore {
     class CaptureSession {
     public:
-        explicit CaptureSession(pcpp::PcapLiveDevice* interface);
+        explicit CaptureSession(pcpp::PcapLiveDevice *interface);
+
         ~CaptureSession();
 
         bool Start();
@@ -22,14 +25,20 @@ namespace SCore {
         inline bool IsOpen() const { return m_Open; }
         inline bool IsCapturing() const { return m_Capturing; }
         inline const pcpp::PcapLiveDevice *GetInterface() const { return m_Interface; }
+        inline std::string GetInterfaceName() const { return m_Interface->getName(); }
+        inline const CaptureStats& GetStats() const { return m_Stats; }
 
     private:
-        static void OnPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie);
+        static void OnPacketArrives(const pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie);
 
     private:
         InterfaceManager &m_InterfaceManager;
 
-        pcpp::PcapLiveDevice* m_Interface;
+        pcpp::PcapLiveDevice *m_Interface;
+
+        BoundedPacketBuffer<pcpp::RawPacket> m_PacketBuffer;
+        PacketProcessor m_PacketProcessor;
+        CaptureStats m_Stats;
 
         bool m_Open = false;
         bool m_Capturing = false;

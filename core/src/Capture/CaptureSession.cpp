@@ -5,7 +5,10 @@
 #include "Sentra/Capture/CaptureSession.h"
 
 namespace SCore {
-    CaptureSession::CaptureSession(pcpp::PcapLiveDevice *interface) : m_InterfaceManager(InterfaceManager::Instance()), m_Interface(interface) {
+    CaptureSession::CaptureSession(pcpp::PcapLiveDevice *interface) : m_InterfaceManager(InterfaceManager::Instance()),
+                                                                      m_Interface(interface),
+                                                                      m_PacketBuffer(4096),
+                                                                      m_PacketProcessor(m_PacketBuffer, m_Stats) {
     }
 
     CaptureSession::~CaptureSession() {
@@ -24,9 +27,15 @@ namespace SCore {
             m_Open = true;
         }
 
+        m_Stats.Reset();
+        m_PacketBuffer.Reset();
+        m_PacketProcessor.Start();
+
         const bool started = m_Interface->startCapture(&CaptureSession::OnPacketArrives, this);
 
         if (!started) {
+            m_PacketProcessor.Stop();
+
             m_InterfaceManager.CloseInterface(m_Interface);
             m_Open = false;
 
@@ -45,15 +54,24 @@ namespace SCore {
             m_Capturing = false;
         }
 
+        m_PacketProcessor.Stop();
+
         if (m_Open) {
             m_InterfaceManager.CloseInterface(m_Interface);
             m_Open = false;
         }
     }
 
-    void CaptureSession::OnPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
-        auto* session = static_cast<CaptureSession*>(cookie);
+    void CaptureSession::OnPacketArrives(const pcpp::RawPacket *packet, pcpp::PcapLiveDevice *device, void *cookie) {
+        auto *session = static_cast<CaptureSession *>(cookie);
 
         if (session == nullptr || packet == nullptr) return;
+        session->m_Stats.PacketsReceived.fetch_add(1, std::memory_order_relaxed);
+
+        if (session->m_PacketBuffer.TryPush(*packet)) {
+            session->m_Stats.PacketsQueued.fetch_add(1, std::memory_order_relaxed);
+        } else {
+            session->m_Stats.PacketsDropped.fetch_add(1, std::memory_order_relaxed);
+        }
     }
 } // SCore

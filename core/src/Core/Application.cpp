@@ -8,7 +8,9 @@
 #include "Sentra/Utils/LoggerTags.h"
 
 namespace SCore {
-    Application::Application() : m_IsRunning(false) {
+    Application::Application() : m_InterfaceManager(InterfaceManager::Instance()),
+                                 m_CaptureManager(CaptureManager::Instance()),
+                                 m_IsRunning(false) {
         SCORE_TRACE("{}: Application initialized", LoggerTags::UPDATE);
     }
 
@@ -29,9 +31,10 @@ namespace SCore {
     void Application::Stop() {
         if (!m_IsRunning) return;
 
+        m_CaptureManager.StopAllCaptureSessions();
+
         m_IsRunning = false;
 
         SCORE_TRACE("{}: Application state changed to down", LoggerTags::STATE_CHANGE);
     }
-
 }
