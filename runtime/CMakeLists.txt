@@ -1,8 +1,11 @@
+add_subdirectory(vendor/cli11)
+
 if (NOT TARGET Sentra::Engine)
     message(FATAL_ERROR
             "Sentra::Engine must be added before sentra-runtime"
     )
 endif ()
+
 
 add_executable(sentra-runtime)
 add_executable(Sentra::Runtime ALIAS sentra-runtime)
@@ -20,6 +23,7 @@ target_sources(sentra-runtime
 target_link_libraries(sentra-runtime
         PRIVATE
         Sentra::Engine
+        CLI11::CLI11
 )
 
 set_target_properties(sentra-runtime
